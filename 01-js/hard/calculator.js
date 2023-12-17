@@ -1,3 +1,4 @@
+
 /*
   Implement a class `Calculator` having below methods
     - initialise a result variable in the constructor and keep updating it after every arithmetic operation
@@ -16,6 +17,48 @@
   Once you've implemented the logic, test your code by running
 */
 
-class Calculator {}
+class Calculator {
+  constructor() {
+    this.result = 0;
+  }
+
+  add(number) {
+    this.result += number;
+  }
+  subtract(number) {
+    this.result -= number;
+  }
+  multiply(number) {
+    this.result *= number;
+  }
+  divide(number) {
+    if (number === 0) {
+      throw new Error("Error");
+    }
+    this.result /= number;
+  }
+
+  clear() {
+    this.result = 0;
+  }
+  calculate(expression) {
+    this.result = eval(expression);
+
+    if (isNaN(this.result) || !isFinite(this.result)) {
+      throw new Error("Invalid arithmetic expression!");
+    }
+  }
+
+  //method to get the current result
+  getResult() {
+    return this.result;
+  }
+}
+const calculator = new Calculator();
+
+calculator.add(5);
+console.log(calculator.getResult());
+
+console.log(calculator.getResult());
 
 module.exports = Calculator;
