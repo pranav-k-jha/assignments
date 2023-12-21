@@ -8,7 +8,6 @@ app.use(express.json());
 
 let todoItems = [];
 
-
 //reading the file
 async function readDataFromFile() {
   try {
@@ -18,7 +17,7 @@ async function readDataFromFile() {
     // console.log("Successfully loaded data from file");
   } catch (error) {
     console.error("Error reading data from file:", error);
-  }     
+  }
 }
 readDataFromFile();
 
@@ -30,18 +29,18 @@ app.get("/todos/:id", (req, res) => {
   const id = req.params.id;
   let todoItem = null;
 
-  // for (let i = 0; i < todoItems.length; i++) {
-  //   if (id === todoItems[i].id) {
-  //     todoItem = todoItems[i];
-  //     break; // Break out of the loop once a matching item is found
-  //   }
-  // }
-
-  todoItems.forEach((item) => {
-    if (id === item.id) {
-      todoItem = item;
+  for (let i = 0; i < todoItems.length; i++) {
+    if (id === todoItems[i].id) {
+      todoItem = todoItems[i];
+      break; // Break out of the loop once a matching item is found
     }
-  });
+  }
+
+  // todoItems.forEach((item) => {
+  //   if (id === item.id) {
+  //     todoItem = item;
+  //   }
+  // });
   console.log(todoItem);
   if (todoItem) {
     res.status(200).json(todoItem);
@@ -56,7 +55,15 @@ app.post("/addItem", async (req, res) => {
   const description = req.body.description;
   const newItem = { id, title, description };
 
-  /*
+  todoItems.push(newItem);
+  // console.log("new item added is: ", newItem);
+  // console.log("pushed newItem to todoItems:", todoItems);
+
+  await fs.writeFile("todos.json", JSON.stringify(todoItems, null, 2), "utf-8");
+  res.status(200).json("Successfully added data!");
+});
+
+/*
   PUT /todos/:id - Update an existing todo item by ID
     Description: Updates an existing todo item identified by its ID.
     Request Body: JSON object representing the updated todo item.
@@ -65,13 +72,44 @@ app.post("/addItem", async (req, res) => {
     Request Body: { "title": "Buy groceries", "completed": true }
   */
 
-  todoItems.push(newItem);
-  // console.log("new item added is: ", newItem);
-  // console.log("pushed newItem to todoItems:", todoItems);
+app.put("/todos/:id", (req, res) => {
+  const id = req.params.id;
+  let updatedItem = null;
 
-  await fs.writeFile("todos.json", JSON.stringify(todoItems, null, 2), "utf-8");
-  res.status(200).json("Successfully added data!");
+  for (let i = 0; i < todoItems.length; i++) {
+    if (id === todoItems[i].id) {
+      console.log("older item", todoItems[i]);
+      todoItems[i].title = req.body.title;
+      todoItems[i].description = req.body.description;
+      updatedItem = todoItems[i]; // Assign the updated item
+      break;
+    }
+  }
+
+  console.log("updated item:", updatedItem);
+  res.status(200).json(todoItems);
 });
+
+app.delete("/todos/:id", (req, res) => {
+  const id = req.params.id;
+  let deletedItem = null;
+
+  for (let i = 0; i < todoItems.length; i++) {
+    if (id === todoItems[i].id) {
+      console.log("deleted item", todoItems[i]);
+      // Capture the deleted item
+      deletedItem = todoItems[i];
+      // Use the splice method to remove the item at index i
+      todoItems.splice(i, 1);
+      break;
+    }
+  }
+
+  console.log("deleted successfully");
+  // Respond with the deleted item or a success message
+  res.status(200).json(deletedItem || { message: "Item not found" });
+});
+
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
