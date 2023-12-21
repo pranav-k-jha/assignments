@@ -18,7 +18,7 @@ async function readDataFromFile() {
     // console.log("Successfully loaded data from file");
   } catch (error) {
     console.error("Error reading data from file:", error);
-  }
+  }     
 }
 readDataFromFile();
 
