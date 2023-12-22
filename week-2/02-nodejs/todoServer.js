@@ -1,10 +1,11 @@
 const express = require("express");
+const bodyParser = require("body-parser");
 const { v4: uuidv4 } = require("uuid");
 const fs = require("fs").promises;
 
 const port = 3000;
 const app = express();
-app.use(express.json());
+app.use(bodyParser.json());
 
 let todoItems = [];
 
@@ -26,53 +27,43 @@ app.get("/todos", (req, res) => {
 });
 
 app.get("/todos/:id", (req, res) => {
-  const id = req.params.id;
+  const id = req.params.id; // Use req.params to get the parameter from the URL
   let todoItem = null;
 
   for (let i = 0; i < todoItems.length; i++) {
     if (id === todoItems[i].id) {
       todoItem = todoItems[i];
-      break; // Break out of the loop once a matching item is found
+      break; // Break out of the loop once the item is found
     }
   }
 
-  // todoItems.forEach((item) => {
-  //   if (id === item.id) {
-  //     todoItem = item;
-  //   }
-  // });
-  console.log(todoItem);
   if (todoItem) {
+    // If the item is found, respond with the specific item
     res.status(200).json(todoItem);
   } else {
-    res.status(404).json({ error: "Todo item not found" });
+    // If the item is not found, respond with an error message
+    res.status(404).json({ message: "Todo item not found" });
   }
 });
 
 app.post("/addItem", async (req, res) => {
   const id = uuidv4();
-  const title = req.body.title;
-  const description = req.body.description;
+  const { title, description } = req.body;
   const newItem = { id, title, description };
 
   todoItems.push(newItem);
-  // console.log("new item added is: ", newItem);
-  // console.log("pushed newItem to todoItems:", todoItems);
 
-  await fs.writeFile("todos.json", JSON.stringify(todoItems, null, 2), "utf-8");
-  res.status(200).json("Successfully added data!");
+  try {
+    await fs.writeFile("todos.json", JSON.stringify(todoItems, null, 2), "utf-8");
+    res.status(201).json({ message: "Successfully added data", id });
+  } catch (error) {
+    console.error("Error writing to file:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 });
 
-/*
-  PUT /todos/:id - Update an existing todo item by ID
-    Description: Updates an existing todo item identified by its ID.
-    Request Body: JSON object representing the updated todo item.
-    Response: 200 OK if the todo item was found and updated, or 404 Not Found if not found.
-    Example: PUT http://localhost:3000/todos/123
-    Request Body: { "title": "Buy groceries", "completed": true }
-  */
 
-app.put("/todos/:id", (req, res) => {
+app.put("/todos/:id", async (req, res) => {
   const id = req.params.id;
   let updatedItem = null;
 
@@ -85,18 +76,19 @@ app.put("/todos/:id", (req, res) => {
       break;
     }
   }
-
+  await fs.writeFile("todos.json", JSON.stringify(todoItems, null, 2), "utf-8");
   console.log("updated item:", updatedItem);
-  res.status(200).json(todoItems);
+  res
+    .status(200)
+    .json({ message: "Successfully added data", updatedItem, todoItems });
 });
 
-app.delete("/todos/:id", (req, res) => {
+app.delete("/todos/:id", async (req, res) => {
   const id = req.params.id;
   let deletedItem = null;
 
   for (let i = 0; i < todoItems.length; i++) {
     if (id === todoItems[i].id) {
-      console.log("deleted item", todoItems[i]);
       // Capture the deleted item
       deletedItem = todoItems[i];
       // Use the splice method to remove the item at index i
@@ -105,12 +97,27 @@ app.delete("/todos/:id", (req, res) => {
     }
   }
 
-  console.log("deleted successfully");
-  // Respond with the deleted item or a success message
-  res.status(200).json(deletedItem || { message: "Item not found" });
+  // Update the "todos.json" file with the modified todoItems
+  await fs.writeFile("todos.json", JSON.stringify(todoItems, null, 2), "utf-8");
+
+  if (deletedItem) {
+    console.log("deleted successfully:", deletedItem);
+    // Respond with the deleted item
+    res.status(200).json(deletedItem);
+  } else {
+    console.log("Item not found");
+    // Respond with an error message
+    res.status(404).json({ message: "Item not found" });
+  }
 });
 
+// Middleware for handling undefined routes
+app.use((req, res) => {
+  res.status(404).json({ message: "Error 404! Not Found" });
+});
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
+
+module.exports = app;
