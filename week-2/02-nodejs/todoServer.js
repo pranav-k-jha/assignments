@@ -1,11 +1,15 @@
 const express = require("express");
-const bodyParser = require("body-parser");
-const { v4: uuidv4 } = require("uuid");
+// const { v4: uuidv4 } = require("uuid");
 const fs = require("fs").promises;
 
-const port = 3000;
+// const port = 3000;
 const app = express();
-app.use(bodyParser.json());
+
+app.use(express.json());
+
+function findItemById(id) {
+  return todoItems.find((item) => item.id === id);
+}
 
 let todoItems = [];
 
@@ -27,7 +31,7 @@ app.get("/todos", (req, res) => {
 });
 
 app.get("/todos/:id", (req, res) => {
-  const id = req.params.id; // Use req.params to get the parameter from the URL
+  const id = Number(req.params.id); // Use req.params to get the parameter from the URL
   let todoItem = null;
 
   for (let i = 0; i < todoItems.length; i++) {
@@ -47,14 +51,18 @@ app.get("/todos/:id", (req, res) => {
 });
 
 app.post("/addItem", async (req, res) => {
-  const id = uuidv4();
+  const id = Math.floor(Math.random() * 1000000);
   const { title, description } = req.body;
   const newItem = { id, title, description };
 
   todoItems.push(newItem);
 
   try {
-    await fs.writeFile("todos.json", JSON.stringify(todoItems, null, 2), "utf-8");
+    await fs.writeFile(
+      "todos.json",
+      JSON.stringify(todoItems, null, 2),
+      "utf-8"
+    );
     res.status(201).json({ message: "Successfully added data", id });
   } catch (error) {
     console.error("Error writing to file:", error);
@@ -62,62 +70,47 @@ app.post("/addItem", async (req, res) => {
   }
 });
 
-
 app.put("/todos/:id", async (req, res) => {
-  const id = req.params.id;
-  let updatedItem = null;
+  const id = Number(req.params.id);
+  const existingItem = findItemById(id);
 
-  for (let i = 0; i < todoItems.length; i++) {
-    if (id === todoItems[i].id) {
-      console.log("older item", todoItems[i]);
-      todoItems[i].title = req.body.title;
-      todoItems[i].description = req.body.description;
-      updatedItem = todoItems[i]; // Assign the updated item
-      break;
-    }
+  if (!existingItem) {
+    return res.status(404).json({ message: "Todo item not found" });
   }
+
+  existingItem.title = req.body.title;
+  existingItem.description = req.body.description;
+
   await fs.writeFile("todos.json", JSON.stringify(todoItems, null, 2), "utf-8");
-  console.log("updated item:", updatedItem);
-  res
-    .status(200)
-    .json({ message: "Successfully added data", updatedItem, todoItems });
+
+  res.status(200).json({
+    message: "Successfully updated data",
+    updatedItem: existingItem,
+    todoItems,
+  });
 });
 
 app.delete("/todos/:id", async (req, res) => {
-  const id = req.params.id;
-  let deletedItem = null;
+  const id = Number(req.params.id);
+  const index = todoItems.findIndex((item) => item.id === id);
 
-  for (let i = 0; i < todoItems.length; i++) {
-    if (id === todoItems[i].id) {
-      // Capture the deleted item
-      deletedItem = todoItems[i];
-      // Use the splice method to remove the item at index i
-      todoItems.splice(i, 1);
-      break;
-    }
+  if (index === -1) {
+    return res.status(404).json({ message: "Todo item not found" });
   }
 
-  // Update the "todos.json" file with the modified todoItems
+  const deletedItem = todoItems.splice(index, 1)[0];
+
   await fs.writeFile("todos.json", JSON.stringify(todoItems, null, 2), "utf-8");
 
-  if (deletedItem) {
-    console.log("deleted successfully:", deletedItem);
-    // Respond with the deleted item
-    res.status(200).json(deletedItem);
-  } else {
-    console.log("Item not found");
-    // Respond with an error message
-    res.status(404).json({ message: "Item not found" });
-  }
+  res.status(200).json({ message: "Successfully deleted data", deletedItem });
 });
+
+// app.listen(port, () => {
+//   console.log(`Server running on port ${port}`);
+// });
 
 // Middleware for handling undefined routes
-app.use((req, res) => {
+app.use((req, res, next) => {
   res.status(404).json({ message: "Error 404! Not Found" });
 });
-
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
-
 module.exports = app;
