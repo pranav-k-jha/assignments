@@ -163,22 +163,22 @@ findFruits();
 //   }
 // }
 
-async function updatePerson() {
-  try {
-    const result = await Person.updateOne(
-      { name: "John" },
-      { favouriteFruit: grapes },
-    );
+// async function updatePerson() {
+//   try {
+//     const result = await Person.updateOne(
+//       { name: "John" },
+//       { favouriteFruit: grapes },
+//     );
 
-    if (result.nModified > 0) {
-      console.log("Updated");
-    } else {
-      console.log("No documents were updated");
-    }
-  } catch (error) {
-    console.error("Error updating :", error);
-  }
-}
+//     if (result.nModified > 0) {
+//       console.log("Updated");
+//     } else {
+//       console.log("No documents were updated");
+//     }
+//   } catch (error) {
+//     console.error("Error updating :", error);
+//   }
+// }
 
 // async function deletePeople() {
 //   try {
@@ -196,7 +196,7 @@ async function updatePerson() {
 
 // Call the functions
 // updateFruit();
- // updatePerson();
+// updatePerson();
 // deleteFruit();
 // deletePerson();
 // deletePeople();
