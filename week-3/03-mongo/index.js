@@ -1,4 +1,3 @@
-require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
@@ -6,7 +5,9 @@ const app = express();
 // const userRouter = require("./routes/user");
 const mongoose = require("mongoose");
 
-mongoose.connect(process.env.MONGODB_URL);
+mongoose.connect(
+  "mongodb+srv://pranavjha:oc28abt2k6V9QlbV@cluster0.tciw1xy.mongodb.net/CourseApp",
+);
 
 // Middleware for parsing request bodies
 app.use(bodyParser.json());
@@ -14,12 +15,18 @@ app.use(bodyParser.json());
 // app.use("/user", userRouter);
 
 const PORT = 3000;
-
+//admin
 const adminSchema = new mongoose.Schema({
   username: String,
   password: String,
 });
 const Admin = mongoose.model("Admin", adminSchema);
+
+const userSchema = new mongoose.Schema({
+  username: String,
+  password: String,
+});
+const User = mongoose.model("User", adminSchema);
 
 const courseSchema = new mongoose.Schema({
   title: String,
@@ -31,8 +38,8 @@ const Course = mongoose.model("Course", courseSchema);
 
 app.post("/admin/signup", (req, res) => {
   const { username, password } = req.body;
-  const user1 = new Admin({ username, password });
-  user1.save();
+  const user = new Admin({ username, password });
+  user.save();
 
   // Save the new admin to the database
   res.json({ message: "Admin created successfully" });
@@ -77,6 +84,49 @@ app.get("/admin/courses", async (req, res) => {
     res.json({ courses: courses });
   } catch (err) {
     console.error("Error fetching courses: ", err);
+  }
+});
+
+//users
+/*  */
+app.post("/users/signup", (req, res) => {
+  const { username, password } = req.body;
+  const user = new User({ username, password });
+  user.save();
+
+  // Save the new admin to the database
+  res.json({ message: "User created successfully" });
+});
+
+app.get("/users/courses", async (req, res) => {
+  const { username, password } = req.headers;
+  try {
+    const user = await User.findOne({ username, password });
+    if (!user) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+    const courses = await Course.find();
+    res.json({ courses: courses });
+  } catch (err) {
+    console.error("Error fetching courses: ", err);
+  }
+});
+
+app.post("/users/courses/:courseId", async (req, res) => {
+  const { username, password } = req.headers;
+  const courseId = req.params.courseId;
+  try {
+    const user = await User.findOne({ username, password });
+    if (!user) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+    res.status(201).json({
+      message: "Course purchased successfully",
+      courseId,
+    });
+  } catch (err) {
+    console.error("Error creating course: ", err);
+    res.status(500).json({ message: "Error creating course" });
   }
 });
 
