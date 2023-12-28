@@ -5,9 +5,7 @@ const app = express();
 // const userRouter = require("./routes/user");
 const mongoose = require("mongoose");
 
-mongoose.connect(
-  "mongodb+srv://pranavjha:oc28abt2k6V9QlbV@cluster0.tciw1xy.mongodb.net/CourseApp",
-);
+mongoose.connect(process.env.MONGODB_URL);
 
 // Middleware for parsing request bodies
 app.use(bodyParser.json());
