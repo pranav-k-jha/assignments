@@ -1,0 +1,104 @@
+<html>
+  <script>
+    function populateDiv() {
+      const a = document.getElementById("firstNumber").value;
+      const b = document.getElementById("secondNumber").value;
+      const element = document.getElementById("finalSum");
+      element.innerHTML = parseInt(a) + parseInt(b);
+    }
+    //debouncing, throtlling;
+    let timeout;
+    function debouncePopulateDiv() {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        populateDiv2();
+      }, 1000);
+    }
+
+    async function populateDivSum() {
+      const a = document.getElementById("firstNumber").value;
+      const b = document.getElementById("secondNumber").value;
+
+      const element = document.getElementById("finalSum");
+      //element.innerHTML = parseInt(a) + parseInt(b);
+      const response = await fetch(
+        "https://mernstack.pranav-k-jha.repl.co/sum?a=" + a + "&b=" + b
+      );
+      const ans = await response.text();
+      console.log(ans);
+      element.innerHTML = ans;
+    }
+
+    async function populateDivInterest() {
+      const principal = document.getElementById("principal").value;
+      const rate = document.getElementById("rate").value;
+      const time = document.getElementById("time").value;
+
+      const interestElement = document.getElementById("interest");
+      const totalSumElement = document.getElementById("totalSum");
+
+      const response = await fetch(
+        "https://mernstack.pranav-k-jha.repl.co/interest?a=" +
+        principal +
+          "&b=" +
+          rate +
+          "&c=" +
+          time
+      );
+
+      const ans = await response.json();
+      interestElement.innerHTML = "Interest: " + ans.interest;
+      totalSumElement.innerHTML = "Total Sum: " + ans.total;
+    }
+
+  </script>
+
+  <body>
+    <!-- onClick -->
+    <input
+      id="firstNumber"
+      type="text"
+      placeholder="First Number"
+    /><br /><br />
+    <input
+      id="secondNumber"
+      type="text"
+      placeholder="Second Number"
+    /><br /><br />
+    <button onclick="populateDivSum()">Calculate Sum</button><br /><br />
+    <div id="finalSum"></div>
+    <br /><br />
+
+    <!-- onChange -->
+
+    <!-- <input
+      id="firstNumber"
+      onchange="populateDiv()"
+      type="text"
+    
+      placeholder="First Number"
+    /><br /><br />
+    <input
+      id="secondNumber"
+      onchange="populateDiv()"
+      type="text"
+    
+      placeholder="Second Number"
+    /><br /><br />
+    <div id="finalSum"></div> -->
+
+    <!-- interest -->
+
+    <input
+      id="principal"
+      type="text"
+      placeholder="principal amount"
+    /><br /><br />
+    <input id="rate" type="text" placeholder="enter rate" /><br /><br />
+    <input id="time" type="text" placeholder="enter time" /><br /><br />
+    <button onclick="populateDivInterest()">Calculate Interest</button
+    ><br /><br />
+    <div id="interest"></div>
+    <div id="totalSum"></div>
+  </body>
+</html>
