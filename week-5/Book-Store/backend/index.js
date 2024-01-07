@@ -1,60 +1,24 @@
 import connectDB, { app } from "./config.js";
-import { Book } from "./models/bookModel.js";
 import express from "express";
+import booksRoute from "./routes/booksRoute.js";
+import cors from "cors"
 
 app.use(express.json());
 app.get("/", (req, res) => {
   res.status(234).send("Welcome to MERN Stack");
 });
 
-//ROute for save a new Book
-app.post("/books", async (req, res) => {
-  try {
-    if (!req.body.title || !req.body.author || !req.body.publishYear) {
-      return res.status(400).send({
-        message: "Send all required fields: title, author, publishYear",
-      });
-    }
-    const newBook = {
-      title: req.body.title,
-      author: req.body.author,
-      publishYear: req.body.publishYear,
-    };
+app.use("/books", booksRoute);
 
-    const book = await Book.create(newBook);
-    return res.status(201).send(book);
-  } catch (error) {
-    res.status(500).send({ message: error.message });
-  }
-});
-
-app.get("/books", async (req, res) => {
-  try {
-    const books = await Book.find({});
-
-    return res.status(200).json({
-      count: books.length,
-      data: books,
-    });
-  } catch (error) {
-    console.log(error.message);
-    res.status(300).send({ message: error.message });
-  }
-});
-
-app.get("/books/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    // const id = req.params.id;
-    console.log(id);
-
-    const book = await Book.findById(id);
-
-    return res.status(200).json(book);
-  } catch (error) {
-    console.log(error.message);
-    res.status(300).send({ message: error.message });
-  }
-});
+//option 1: Allow all origins with default of cors(*)
+app.use(cors());
+//option 2: Allow custom origins
+// app.use(
+//   cors({
+//     origin: "http://localhost:5555",
+//     methods: ["GET", "POST", "PUT", "DELETE"],
+//     allowedHeaders: ["Content-Type"],
+//   })
+// );
 
 connectDB();
