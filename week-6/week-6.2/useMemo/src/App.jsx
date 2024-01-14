@@ -5,7 +5,7 @@ import "./App.css";
 
 function App() {
   
-  const [sum, setSum] = useMemo(0);
+  const [sum, setSum] = useState(0);
 
   return (
     <div>
