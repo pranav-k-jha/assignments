@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TODO App</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="todoItem">
+        <input id="title" type="text" placeholder="Enter title ..." />
+        <input
+          id="description"
+          type="text"
+          placeholder="Enter description ..."
+        />
+        <button onclick="addToDo()" class="button" type="submit">Add</button
+        ><br />
+
+        <div class="addedItems" id="addedItems">
+          <p id="added"><b> </b></p>
+
+        </div>
+      </div>
+    </div>
+    <script src="index.js"></script>
+  </body>
+</html>
