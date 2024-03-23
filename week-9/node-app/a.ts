@@ -1,2 +1,9 @@
-const x: number  = 1;
-console.log(x); 
+
+
+const a = () => {
+  return (
+    console.log("Hello World")
+  )
+}
+
+a()
