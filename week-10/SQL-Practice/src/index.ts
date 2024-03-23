@@ -1,10 +1,7 @@
 //create a users table in the DB
 import { Client } from "pg";
 
-const client = new Client(
-    "postgresql://neondb_owner:R5LqjPy9NWaf@ep-weathered-limit-a5oxi5ay.us-east-2.aws.neon.tech/neondb?sslmode=require",
-);
-
+const client = new Client(process.env.CONNECTION_URL);
 async function createUsersTable() {
   await client.connect();
   const result = await client.query(
